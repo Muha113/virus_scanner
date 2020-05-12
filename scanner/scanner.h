@@ -6,6 +6,8 @@
 #include <dirent.h>
 #include <string.h>
 #include <time.h>
+#include <QDir>
+#include <QDirIterator>
 
 #define ALLOC_BUFFER(size, dataType) (dataType*)memset(malloc(size), 0, size)
 #define VIRUS_FOUND 0
@@ -161,7 +163,7 @@ int buildVirusSigTable (char *pcVirusSignature, VirusSignatureTable_t * pVirusSi
     return 0;
 }
 
-int buildSignaturesTable (char *pSignatureFile)
+int buildSignaturesTable(char *pSignatureFile)
 {
     FILE    *pSigFile;
     char    *pcVirusSignatures;
@@ -311,9 +313,9 @@ static int scanFileForViruses (char *pcFileLocation, char *pcFileName)
         iReturnStatus = scanBuffer (ullIterator, pcFileBuffer, lFileLength);
         if (VIRUS_FOUND == iReturnStatus)
         {
-            printf ("%s Virus Signature Found in %s File\n",
-                    pVirusSignatureTable[ullIterator]->cVirus,
-                    cAbsoluteFileLocation);
+//            printf ("%s Virus Signature Found in %s File\n",
+//                    pVirusSignatureTable[ullIterator]->cVirus,
+//                    cAbsoluteFileLocation);
             iInfectedStatus = 1;
             // return VIRUS_FOUND;
         }
@@ -330,10 +332,8 @@ static int scanFileForViruses (char *pcFileLocation, char *pcFileName)
 }
 
 void scanDirectories (char *pcDirectoryPath)
-{
+{    
     DIR     *pDir = NULL;
-    dirent *pDirent;
-    char     cDirectoryPath[1024];
     int      iErrorInformation = -1;
     pDir = opendir (pcDirectoryPath);
 
@@ -341,20 +341,18 @@ void scanDirectories (char *pcDirectoryPath)
     {
         // printf ("Failed to open directory");
     }
+    QString sosal = QString::fromLocal8Bit(pcDirectoryPath);
+    QDirIterator it(sosal, QDirIterator::Subdirectories);
+    QDir *currentDir = new QDir();
+    currentDir->setPath(sosal);
 
-    while ((pDirent = readdir (pDir)) != 0)
+    while (it.hasNext())
     {
-        if (DT_DIR == pDirent->d_type && strcmp (pDirent->d_name, ".") != 0 && strcmp (pDirent->d_name, "..") != 0)
-        {
-            strcpy (cDirectoryPath, pcDirectoryPath);
-            strcat (cDirectoryPath, "/");
-            strcat (cDirectoryPath, pDirent->d_name);
-
-            scanDirectories(cDirectoryPath);
-        }
-        else if (DT_REG == pDirent->d_type)
-        {
-            iErrorInformation = scanFileForViruses(pcDirectoryPath, pDirent->d_name);
+        it.next();
+        if(it.fileName() != ".." && it.fileName() != "." && !it.fileInfo().isDir()) {
+            QByteArray bt = it.fileName().toLocal8Bit();
+            char* name = bt.data();
+            iErrorInformation = scanFileForViruses(pcDirectoryPath, name);
             if(-1 != iErrorInformation)
             {
                 ullTotalNumberOfFilesScanned++;
@@ -363,72 +361,6 @@ void scanDirectories (char *pcDirectoryPath)
     }
     closedir(pDir);
 }
-
-//int main (int iArgCount, char **ppcArgs)
-//{
-//    DIR     *pDir;
-//    FILE    *pFile;
-//    time_t  sStartTime;
-//    time_t  sEndTime;
-
-//    pDir = NULL;
-
-//    ppcArgs[1] = "C:\\Users\\danii\\CLionProjects\\virus_scanner\\pkg";
-//    ppcArgs[2] = "C:\\Users\\danii\\CLionProjects\\virus_scanner\\pkg\\signatures";
-//    iArgCount = 3;
-//    if (iArgCount < 3)
-//    {
-//        printf ("Usage:%s <Directory Path> <Signatures File>\n", ppcArgs[0]);
-
-//        return (EXIT_FAILURE);
-//    }
-
-//    pDir = opendir (ppcArgs[1]);
-//    if (NULL == pDir)
-//    {
-//        printf ("Invalid directory path provided!!\n");
-
-//        pFile = fopen(ppcArgs[1], "rb");
-
-//        if(NULL == pFile)
-//        {
-//            printf("Invalid directory or file path\n");
-//            return (EXIT_FAILURE);
-//        }
-//        fclose(pFile);
-//        buildSignaturesTable (ppcArgs[2]);
-//        time(&sStartTime);
-//        scanFileForViruses("", ppcArgs[1]);
-//        time(&sEndTime);
-//        goto scan_summary;
-//    }
-
-//    closedir(pDir);
-
-//    if(buildSignaturesTable (ppcArgs[2]) == -1)
-//    {
-//        printf("Failed to open signatures files, exiting from scanning process\n");
-//        return (EXIT_FAILURE);
-//    }
-
-//    time(&sStartTime);
-//    scanDirectories (ppcArgs[1]);
-//    time(&sEndTime);
-
-//    scan_summary:
-//    dTimeTakenToScanFiles = difftime(sEndTime, sStartTime);
-//    printf("\n\n-------------------------------\n");
-//    printf("SCAN SUMMARY\n");
-//    printf("-------------------------------\n");
-//    printf("Number Of Virus Signatures: %lld\n", ullTotalNumberOfVirusSignatures);
-//    printf("Number Of Files Scanned   : %lld\n", ullTotalNumberOfFilesScanned);
-//    printf("Number Of Infected Files  : %lld\n", ullTotalNumberOfInfectedFiles);
-//    printf("Time Taken To Scan Files  : %0.2fSecs\n", dTimeTakenToScanFiles);
-//    printf("-------------------------------\n");
-
-//    return (EXIT_SUCCESS);
-//}
-
 
 class Scanner
 {
