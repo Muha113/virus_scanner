@@ -1,7 +1,10 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "scanner.h"
+
 #include <QMainWindow>
+#include <QObject>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -15,16 +18,21 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+public slots:
+    void setLogsEditText(QString);
+    void setInfectedFilesEditText(QString);
+    void setSignatureEditText(QString);
+    void updateProgressBar();
+
 private slots:
     void on_chooseDirButton_clicked();
-
     void on_startScanButton_clicked();
-
     void on_chooseSigFileButton_clicked();
 
 private:
     Ui::MainWindow *ui;
     QString directoryPath;
     QString signaturesPath;
+    Scanner scan;
 };
 #endif // MAINWINDOW_H

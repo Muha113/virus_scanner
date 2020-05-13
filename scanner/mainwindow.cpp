@@ -1,19 +1,50 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "scanner.h"
 
 #include <QFileDialog>
+#include <QDebug>
+#include <QColor>
+#include <iostream>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    ui->scanningProgressBar->setValue(0);
+    ui->scanningProgressBar->setMinimum(0);
+    ui->scanningProgressBar->setMaximum(100);
+
+    connect(&scan, SIGNAL(sendLogsEditText(QString)), this, SLOT(setLogsEditText(QString)));
+    connect(&scan, SIGNAL(sendInfectedFilesEditText(QString)), this, SLOT(setInfectedFilesEditText(QString)));
+    connect(&scan, SIGNAL(sendSignatureEditText(QString)), this, SLOT(setSignatureEditText(QString)));
+    connect(&scan, SIGNAL(sendUpdateProgressBar()), this, SLOT(updateProgressBar()));
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::setLogsEditText(QString str)
+{
+    ui->logsEdit->append(str);
+}
+
+void MainWindow::setInfectedFilesEditText(QString str)
+{
+    ui->infectedFilesEdit->append(str);
+}
+
+void MainWindow::setSignatureEditText(QString str)
+{
+    ui->signaturesEdit->append(str);
+}
+
+void MainWindow::updateProgressBar()
+{
+    ui->scanningProgressBar->setValue(ui->scanningProgressBar->value() + 1);
 }
 
 void MainWindow::on_chooseDirButton_clicked()
@@ -45,41 +76,61 @@ void MainWindow::on_startScanButton_clicked()
     QByteArray sigPathByte = signaturesPath.toLocal8Bit();
     sigPath = sigPathByte.data();
 
+    ui->scanningProgressBar->setMinimum(0);
+    ui->scanningProgressBar->setMaximum(scan.calculateFilesToScan(dirPath));
+    ui->scanningProgressBar->setValue(0);
+
     pDir = opendir(dirPath);
     if (NULL == pDir)
     {
+        ui->totalSummaryEdit->setTextColor(Qt::red);
         ui->logsEdit->setText("Invalid directory path provided!!\n");
+        ui->totalSummaryEdit->setTextColor(Qt::black);
         pFile = fopen(dirPath, "rb");
 
         if(NULL == pFile)
         {
+            ui->totalSummaryEdit->setTextColor(Qt::red);
             ui->logsEdit->setText("Invalid directory or file path\n");
+            ui->totalSummaryEdit->setTextColor(Qt::black);
         }
         fclose(pFile);
-        buildSignaturesTable (sigPath);
+        scan.buildSignaturesTable(sigPath);
         time(&sStartTime);
-        scanFileForViruses((char*)"", dirPath);
+        scan.scanFileForViruses((char*)"", dirPath);
         time(&sEndTime);
     }
     else
     {
         closedir(pDir);
 
-        if(buildSignaturesTable(sigPath) == -1)
+        if(scan.buildSignaturesTable(sigPath) == -1)
         {
+            ui->totalSummaryEdit->setTextColor(Qt::red);
             ui->logsEdit->setText("Failed to open signatures files, exiting from scanning process\n");
+            ui->totalSummaryEdit->setTextColor(Qt::black);
         }
 
         time(&sStartTime);
-        scanDirectories (dirPath);
+        scan.scanDirectories(dirPath);
         time(&sEndTime);
     }
+    scan.setDTimeTakenToScanFiles(difftime(sEndTime, sStartTime));
 
-    dTimeTakenToScanFiles = difftime(sEndTime, sStartTime);
-
-    ui->logsEdit->setText("SUCCESS\n");
-    ui->logsEdit->setText(ui->logsEdit->toPlainText() + "Number Of Virus Signatures: " + QString::number(ullTotalNumberOfVirusSignatures) + "\n");
-    ui->logsEdit->setText(ui->logsEdit->toPlainText() + "Number Of Files Scanned: " + QString::number(ullTotalNumberOfFilesScanned) + "\n");
-    ui->logsEdit->setText(ui->logsEdit->toPlainText() + "Number Of Infected Files: " + QString::number(ullTotalNumberOfInfectedFiles) + "\n");
-    ui->logsEdit->setText(ui->logsEdit->toPlainText() + "Time Taken To Scan Files: " +  QString::number(dTimeTakenToScanFiles) + "\n");
+    ui->totalSummaryEdit->setTextColor(Qt::darkGreen);
+    ui->totalSummaryEdit->append("SUCCESS!\n");
+    ui->totalSummaryEdit->setTextColor(Qt::black);
+    ui->totalSummaryEdit->append("Virus Signatures: " + QString::number(scan.getUllTotalNumberOfVirusSignatures()));
+    ui->totalSummaryEdit->append("Files Scanned: " + QString::number(scan.getUllTotalNumberOfFilesScanned()));
+    if(scan.getUllTotalNumberOfInfectedFiles() != 0)
+    {
+        ui->totalSummaryEdit->setTextColor(Qt::red);
+    }
+    else
+    {
+        ui->totalSummaryEdit->setTextColor(Qt::Key_Green);
+    }
+    ui->totalSummaryEdit->append("Infected Files: " + QString::number(scan.getUllTotalNumberOfInfectedFiles()));
+    ui->totalSummaryEdit->setTextColor(Qt::black);
+    ui->totalSummaryEdit->append("Time: " +  QString::number(scan.getDTimeTakenToScanFiles()));
 }
