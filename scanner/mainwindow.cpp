@@ -11,8 +11,9 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    QIcon icon = QIcon("C:\\Users\\danii\\Documents\\virus_scanner\\scanner\\scannerIcon.jpg");
+    this->setWindowIcon(icon);
 
-    ui->totalSummaryEdit->setReadOnly(true);
     ui->signaturesEdit->setReadOnly(true);
     ui->infectedFilesEdit->setReadOnly(true);
     ui->logsEdit->setReadOnly(true);
@@ -78,23 +79,45 @@ void MainWindow::updateScannedFilesLabel()
 void MainWindow::on_chooseDirButton_clicked()
 {
     QString path = QFileDialog::getExistingDirectory(0, "Directory dialogue", "");
-    ui->pathDirEdit->setText(path);
-    QByteArray bt = path.toLocal8Bit();
-    char *pathToScan = bt.data();
-    filesToScan = scan.calculateFilesToScan(pathToScan);
-    ui->fileReadyToScanLabel->setText(QString::number(filesToScan));
-    directoryPath = path;
+    if(path != "")
+    {
+        ui->pathDirEdit->setText(path);
+        ui->logsEdit->clear();
+        QByteArray bt = path.toLocal8Bit();
+        char *pathToScan = bt.data();
+        filesToScan = scan.calculateFilesToScan(pathToScan);
+        ui->fileReadyToScanLabel->setText(QString::number(filesToScan));
+        directoryPath = path;
+    }
+    else
+    {
+        ui->logsEdit->setTextColor(Qt::red);
+        ui->logsEdit->setText("Invalid directory path\n");
+        ui->logsEdit->setTextColor(Qt::black);
+    }
 }
 
 void MainWindow::on_chooseSigFileButton_clicked()
 {
     QString path = QFileDialog::getOpenFileName(0, "Open dialogue", "", "*.txt");
-    ui->pathSigFileEdit->setText(path);
-    signaturesPath = path;
+    if(path != "")
+    {
+        ui->pathSigFileEdit->setText(path);
+        ui->logsEdit->clear();
+        signaturesPath = path;
+    }
+    else
+    {
+        ui->logsEdit->setTextColor(Qt::red);
+        ui->logsEdit->setText("Invalid signature file path\n");
+        ui->logsEdit->setTextColor(Qt::black);
+    }
 }
 
 void MainWindow::on_startScanButton_clicked()
 {
+    ui->statusLabel->setText("RUNNING");
+
     DIR     *pDir;
     FILE    *pFile;
     time_t  sStartTime;
@@ -125,6 +148,8 @@ void MainWindow::on_startScanButton_clicked()
             ui->logsEdit->setTextColor(Qt::red);
             ui->logsEdit->setText("Invalid directory or file path\n");
             ui->logsEdit->setTextColor(Qt::black);
+            ui->statusLabel->setStyleSheet("QLabel { color : red; }");
+            ui->statusLabel->setText("FAILED");
         }
 
         fclose(pFile);
@@ -151,20 +176,20 @@ void MainWindow::on_startScanButton_clicked()
 
     scan.setDTimeTakenToScanFiles(difftime(sEndTime, sStartTime));
 
-    ui->totalSummaryEdit->setTextColor(Qt::darkGreen);
-    ui->totalSummaryEdit->append("SUCCESS!\n");
-    ui->totalSummaryEdit->setTextColor(Qt::black);
-    ui->totalSummaryEdit->append("Virus Signatures: " + QString::number(scan.getUllTotalNumberOfVirusSignatures()));
-    ui->totalSummaryEdit->append("Files Scanned: " + QString::number(scan.getUllTotalNumberOfFilesScanned()));
+    ui->statusLabel->setStyleSheet("QLabel { color : green; }");
+    ui->statusLabel->setText("SUCCESS");
+    ui->availableSigsLabel->setText(QString::number(scan.getUllTotalNumberOfVirusSignatures()));
+    ui->totalFilesScannedLabel->setText(QString::number(scan.getUllTotalNumberOfFilesScanned()));
     if(scan.getUllTotalNumberOfInfectedFiles() != 0)
     {
-        ui->totalSummaryEdit->setTextColor(Qt::red);
+        ui->totalInfectedFilesLabel->setStyleSheet("QLabel { color : red; }");
+        ui->label_12->setStyleSheet("QLabel { color : red; }");
     }
     else
     {
-        ui->totalSummaryEdit->setTextColor(Qt::green);
+        ui->totalInfectedFilesLabel->setStyleSheet("QLabel { color : green; }");
+        ui->label_12->setStyleSheet("QLabel { color : green; }");
     }
-    ui->totalSummaryEdit->append("Infected Files: " + QString::number(scan.getUllTotalNumberOfInfectedFiles()));
-    ui->totalSummaryEdit->setTextColor(Qt::black);
-    ui->totalSummaryEdit->append("Time: " +  QString::number(scan.getDTimeTakenToScanFiles()) + " sec.");
+    ui->totalInfectedFilesLabel->setText(QString::number(scan.getUllTotalNumberOfInfectedFiles()));
+    ui->timeScanningLabel->setText(QString::number(scan.getDTimeTakenToScanFiles()) + " sec.");
 }

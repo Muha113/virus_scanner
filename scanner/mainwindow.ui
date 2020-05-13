@@ -7,11 +7,11 @@
     <x>0</x>
     <y>0</y>
     <width>952</width>
-    <height>667</height>
+    <height>637</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Scanner</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QTextEdit" name="infectedFilesEdit">
@@ -50,7 +50,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Choose folder</string>
+     <string>Scan foler path</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="pathDirEdit">
@@ -66,14 +66,14 @@
    <widget class="QPushButton" name="chooseDirButton">
     <property name="geometry">
      <rect>
-      <x>80</x>
+      <x>10</x>
       <y>30</y>
-      <width>93</width>
+      <width>151</width>
       <height>41</height>
      </rect>
     </property>
     <property name="text">
-     <string>Choose</string>
+     <string>Choose folder</string>
     </property>
    </widget>
    <widget class="QTextEdit" name="logsEdit">
@@ -132,20 +132,20 @@
      </rect>
     </property>
     <property name="text">
-     <string>Choose signatures file</string>
+     <string>Signatures file path</string>
     </property>
    </widget>
    <widget class="QPushButton" name="chooseSigFileButton">
     <property name="geometry">
      <rect>
-      <x>80</x>
+      <x>10</x>
       <y>90</y>
-      <width>93</width>
+      <width>151</width>
       <height>41</height>
      </rect>
     </property>
     <property name="text">
-     <string>Choose</string>
+     <string>Choose sig file</string>
     </property>
    </widget>
    <widget class="QTextEdit" name="signaturesEdit">
@@ -169,16 +169,6 @@
     </property>
     <property name="text">
      <string>Signature</string>
-    </property>
-   </widget>
-   <widget class="QTextEdit" name="totalSummaryEdit">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>260</y>
-      <width>181</width>
-      <height>171</height>
-     </rect>
     </property>
    </widget>
    <widget class="QLabel" name="label_6">
@@ -262,8 +252,8 @@
    <widget class="QLabel" name="label_9">
     <property name="geometry">
      <rect>
-      <x>960</x>
-      <y>30</y>
+      <x>10</x>
+      <y>280</y>
       <width>55</width>
       <height>16</height>
      </rect>
@@ -275,8 +265,8 @@
    <widget class="QLabel" name="statusLabel">
     <property name="geometry">
      <rect>
-      <x>1020</x>
-      <y>30</y>
+      <x>140</x>
+      <y>280</y>
       <width>55</width>
       <height>16</height>
      </rect>
@@ -288,8 +278,8 @@
    <widget class="QLabel" name="label_10">
     <property name="geometry">
      <rect>
-      <x>960</x>
-      <y>50</y>
+      <x>10</x>
+      <y>300</y>
       <width>131</width>
       <height>16</height>
      </rect>
@@ -301,8 +291,8 @@
    <widget class="QLabel" name="availableSigsLabel">
     <property name="geometry">
      <rect>
-      <x>1090</x>
-      <y>50</y>
+      <x>140</x>
+      <y>300</y>
       <width>55</width>
       <height>16</height>
      </rect>
@@ -314,8 +304,8 @@
    <widget class="QLabel" name="label_11">
     <property name="geometry">
      <rect>
-      <x>960</x>
-      <y>70</y>
+      <x>10</x>
+      <y>320</y>
       <width>91</width>
       <height>16</height>
      </rect>
@@ -327,8 +317,8 @@
    <widget class="QLabel" name="totalFilesScannedLabel">
     <property name="geometry">
      <rect>
-      <x>1050</x>
-      <y>70</y>
+      <x>140</x>
+      <y>320</y>
       <width>55</width>
       <height>16</height>
      </rect>
@@ -340,8 +330,8 @@
    <widget class="QLabel" name="label_12">
     <property name="geometry">
      <rect>
-      <x>960</x>
-      <y>90</y>
+      <x>10</x>
+      <y>340</y>
       <width>91</width>
       <height>16</height>
      </rect>
@@ -353,8 +343,8 @@
    <widget class="QLabel" name="totalInfectedFilesLabel">
     <property name="geometry">
      <rect>
-      <x>1050</x>
-      <y>90</y>
+      <x>140</x>
+      <y>340</y>
       <width>55</width>
       <height>16</height>
      </rect>
@@ -366,8 +356,8 @@
    <widget class="QLabel" name="label_13">
     <property name="geometry">
      <rect>
-      <x>960</x>
-      <y>110</y>
+      <x>10</x>
+      <y>360</y>
       <width>71</width>
       <height>16</height>
      </rect>
@@ -376,17 +366,17 @@
      <string>Scan time :</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_14">
+   <widget class="QLabel" name="timeScanningLabel">
     <property name="geometry">
      <rect>
-      <x>1030</x>
-      <y>110</y>
+      <x>140</x>
+      <y>360</y>
       <width>55</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
-     <string>TextLabel</string>
+     <string/>
     </property>
    </widget>
   </widget>
@@ -399,6 +389,12 @@
      <height>26</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuVi_scanner">
+    <property name="title">
+     <string>Vi scanner</string>
+    </property>
+   </widget>
+   <addaction name="menuVi_scanner"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
