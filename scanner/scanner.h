@@ -39,7 +39,7 @@ public:
     int buildVirusSigTable (char*, VirusSignatureTable_t*);
     int buildSignaturesTable(char*);
     int scanBuffer (unsigned long long, char*, long);
-    int scanFileForViruses (char*, char*);
+    int scanFileForViruses (char*);
     void scanDirectories (char*);
     unsigned long long getUllTotalNumberOfVirusSignatures() const;
     unsigned long long getUllTotalNumberOfFilesScanned() const;
@@ -48,10 +48,11 @@ public:
     void setDTimeTakenToScanFiles(double value);
 
 signals:
-    void sendLogsEditText(QString);
+    void sendLogsEditText(QString, int);
     void sendInfectedFilesEditText(QString);
     void sendSignatureEditText(QString);
     void sendUpdateProgressBar();
+    void sendUpdateScannedFilesLabel();
 
 private:
     VirusSignatureTable_t *pVirusSignatureTable[MAX_NUMBER_OF_VIRUS_SIGNATURES];

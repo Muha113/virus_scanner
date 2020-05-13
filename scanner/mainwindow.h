@@ -19,10 +19,11 @@ public:
     ~MainWindow();
 
 public slots:
-    void setLogsEditText(QString);
+    void setLogsEditText(QString, int);
     void setInfectedFilesEditText(QString);
     void setSignatureEditText(QString);
     void updateProgressBar();
+    void updateScannedFilesLabel();
 
 private slots:
     void on_chooseDirButton_clicked();
@@ -34,5 +35,6 @@ private:
     QString directoryPath;
     QString signaturesPath;
     Scanner scan;
+    int filesToScan;
 };
 #endif // MAINWINDOW_H

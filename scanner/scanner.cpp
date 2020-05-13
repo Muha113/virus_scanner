@@ -73,7 +73,7 @@ void Scanner::constructDeltaOneTable (VirusSignatureTable_t * pVirusSigTable)
 
 }
 
-void Scanner::constructDeltaTwoTable (VirusSignatureTable_t * pVirusSigTable)
+void Scanner::constructDeltaTwoTable(VirusSignatureTable_t * pVirusSigTable)
 {
     char     cReverseVirus[pVirusSigTable->iVirusLength + 1];
     char    *pcLeftChar;
@@ -171,7 +171,7 @@ int Scanner::buildSignaturesTable(char *pSignatureFile)
 
     ullTotalNumberOfVirusSignatures = 0;
 
-    pSigFile = fopen (pSignatureFile, "rb");
+    pSigFile = fopen(pSignatureFile, "rb");
 
     if (NULL == pSigFile)
     {
@@ -179,17 +179,17 @@ int Scanner::buildSignaturesTable(char *pSignatureFile)
     }
 
     fseek (pSigFile, 0, SEEK_END);
-    lSignatureFileLen = ftell (pSigFile);
+    lSignatureFileLen = ftell(pSigFile);
     rewind (pSigFile);
 
     pcVirusSignatures = ALLOC_BUFFER (lSignatureFileLen, char);
-    fread (pcVirusSignatures, 1, lSignatureFileLen, pSigFile);
+    fread(pcVirusSignatures, 1, lSignatureFileLen, pSigFile);
 
     pVirusSignatureTable[ullTotalNumberOfVirusSignatures] =
             ALLOC_BUFFER (sizeof (VirusSignatureTable_t), VirusSignatureTable_t);
 
     pcVirusSig = strtok (pcVirusSignatures, "\n");
-    buildVirusSigTable (pcVirusSig, pVirusSignatureTable[ullTotalNumberOfVirusSignatures]);
+    buildVirusSigTable(pcVirusSig, pVirusSignatureTable[ullTotalNumberOfVirusSignatures]);
     ullTotalNumberOfVirusSignatures++;
 
     while (1)
@@ -220,7 +220,7 @@ int Scanner::scanBuffer (unsigned long long ullVirusTableIndex, char *pcBufferTo
     long     ulIndexK;
     int      iASCIIValue;
 
-    if (pVirusSignatureTable[ullVirusTableIndex]->iVirusLength > lBufferLength)
+    if(pVirusSignatureTable[ullVirusTableIndex]->iVirusLength > lBufferLength)
     {
         return VIRUS_NOT_FOUND;
     }
@@ -256,7 +256,6 @@ int Scanner::scanBuffer (unsigned long long ullVirusTableIndex, char *pcBufferTo
             }
             else
             {
-                // pVirusSignatureTable[ullVirusTableIndex]->iDeltaTwo[ulIndexJ];
                 ulIterator = ulIterator + ulIndexK;
             }
         }
@@ -268,7 +267,7 @@ int Scanner::scanBuffer (unsigned long long ullVirusTableIndex, char *pcBufferTo
     return VIRUS_NOT_FOUND;
 }
 
-int Scanner::scanFileForViruses (char *pcFileLocation, char *pcFileName)
+int Scanner::scanFileForViruses (char *pcFileLocation)
 {
     char     cAbsoluteFileLocation[1024];
     long     lFileLength;
@@ -280,21 +279,21 @@ int Scanner::scanFileForViruses (char *pcFileLocation, char *pcFileName)
     int      iSigIndex;
 
     strcpy (cAbsoluteFileLocation, pcFileLocation);
-    strcat (cAbsoluteFileLocation, "/");
-    strcat (cAbsoluteFileLocation, pcFileName);
 
     QString absPath = QString::fromLocal8Bit(cAbsoluteFileLocation);
 
-    emit sendLogsEditText("Open file: " + absPath);
+    emit sendLogsEditText("Open file: " + absPath, 0);
 
-    pFile = fopen (cAbsoluteFileLocation, "rb");
+    pFile = fopen(cAbsoluteFileLocation, "rb");
 
     if (NULL == pFile)
     {
+        emit sendLogsEditText("Cannot open file: " + absPath, -1);
         return -1;
     }
 
-    emit sendLogsEditText("Scanning file: " + absPath);
+    emit sendLogsEditText("Scanning file: " + absPath, 0);
+
     fseek (pFile, 0, SEEK_END);
     lFileLength = ftell (pFile);
     rewind (pFile);
@@ -306,25 +305,32 @@ int Scanner::scanFileForViruses (char *pcFileLocation, char *pcFileName)
 
     iInfectedStatus = 0;
     iSigIndex = 0;
+
     for (ullIterator = 0; ullIterator < ullTotalNumberOfVirusSignatures; ullIterator++)
     {
-        iReturnStatus = scanBuffer (ullIterator, pcFileBuffer, lFileLength);
+        iReturnStatus = scanBuffer(ullIterator, pcFileBuffer, lFileLength);
         if (VIRUS_FOUND == iReturnStatus)
         {
             iSigIndex = ullIterator;
             iInfectedStatus = 1;
         }
     }
+
     if(1 == iInfectedStatus)
     {
         QString sig = QString::fromLocal8Bit(pVirusSignatureTable[iSigIndex]->cVirus);
-        qDebug()<<sig;
+
         emit sendSignatureEditText(sig);
         emit sendInfectedFilesEditText(absPath);
+
         ullTotalNumberOfInfectedFiles++;
     }
+
     free (pcFileBuffer);
     fclose (pFile);
+
+    emit sendLogsEditText("Done!", 1);
+    emit sendUpdateScannedFilesLabel();
     emit sendUpdateProgressBar();
 
     return VIRUS_NOT_FOUND;
@@ -338,21 +344,22 @@ void Scanner::scanDirectories (char *pcDirectoryPath)
 
     if (NULL == pDir)
     {
-        emit sendLogsEditText("Failed to open directory!");
+        emit sendLogsEditText("Failed to open directory!", -1);
         return;
     }
-    QString sosal = QString::fromLocal8Bit(pcDirectoryPath);
-    QDirIterator it(sosal, QDirIterator::Subdirectories);
+
+    QString path = QString::fromLocal8Bit(pcDirectoryPath);
+    QDirIterator it(path, QDirIterator::Subdirectories);
     QDir *currentDir = new QDir();
-    currentDir->setPath(sosal);
+    currentDir->setPath(path);
 
     while (it.hasNext())
     {
         it.next();
         if(it.fileName() != ".." && it.fileName() != "." && !it.fileInfo().isDir()) {
-            QByteArray bt = it.fileName().toLocal8Bit();
+            QByteArray bt = it.filePath().toLocal8Bit();
             char* name = bt.data();
-            iErrorInformation = scanFileForViruses(pcDirectoryPath, name);
+            iErrorInformation = scanFileForViruses(name);
             if(-1 != iErrorInformation)
             {
                 ullTotalNumberOfFilesScanned++;
