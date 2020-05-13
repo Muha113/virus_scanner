@@ -30,32 +30,32 @@ typedef struct VirusSignatureTable
 
 VirusSignatureTable_t *pVirusSignatureTable[MAX_NUMBER_OF_VIRUS_SIGNATURES];
 
-static void printSinatureTable ()
-{
-    int i;
-    int j;
+//static void printSinatureTable ()
+//{
+//    int i;
+//    int j;
 
-    for (i = 0; (unsigned long long)i < ullTotalNumberOfVirusSignatures; i++)
-    {
-        printf("Virus Signature::%s\n", pVirusSignatureTable[i]->cVirus);
-        printf("DeltaOne Table\n");
-        printf
-                ("**********************************************************\n");
-        for (j = 0; j < 256; j++)
-        {
-            printf ("%d\n", pVirusSignatureTable[i]->iDeltaOne[j]);
-        }
-        printf ("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n");
-        printf("DeltaTwo Table\n");
-        printf
-                ("**********************************************************\n");
-        for (j = 0; j < pVirusSignatureTable[i]->iVirusLength; j++)
-        {
-            printf ("%d\n", pVirusSignatureTable[i]->iDeltaTwo[j]);
-        }
-        printf ("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n");
-    }
-}
+//    for (i = 0; (unsigned long long)i < ullTotalNumberOfVirusSignatures; i++)
+//    {
+//        printf("Virus Signature::%s\n", pVirusSignatureTable[i]->cVirus);
+//        printf("DeltaOne Table\n");
+//        printf
+//                ("**********************************************************\n");
+//        for (j = 0; j < 256; j++)
+//        {
+//            printf ("%d\n", pVirusSignatureTable[i]->iDeltaOne[j]);
+//        }
+//        printf ("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n");
+//        printf("DeltaTwo Table\n");
+//        printf
+//                ("**********************************************************\n");
+//        for (j = 0; j < pVirusSignatureTable[i]->iVirusLength; j++)
+//        {
+//            printf ("%d\n", pVirusSignatureTable[i]->iDeltaTwo[j]);
+//        }
+//        printf ("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n");
+//    }
+//}
 
 static void computeCommonInitialStr (const char *pcString, int iStringLen, int iDeltaTwo[])
 {
