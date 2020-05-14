@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QColor>
 #include <iostream>
+#include <QMessageBox>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -114,9 +115,34 @@ void MainWindow::on_chooseSigFileButton_clicked()
     }
 }
 
-void MainWindow::on_startScanButton_clicked()
+bool MainWindow::validateInputPaths()
 {
+    if(signaturesPath.isNull() && directoryPath.isNull())
+    {
+        QMessageBox::critical(0,"Error", "Signatures file and directory paths are not set!");
+    }
+    else if(signaturesPath.isNull() && !directoryPath.isNull())
+    {
+        QMessageBox::critical(0,"Error", "Please set signatures file path");
+    }
+    else if(!signaturesPath.isNull() && directoryPath.isNull())
+    {
+        QMessageBox::critical(0,"Error", "Please set scan directory path");
+    }
+    else
+    {
+        return true;
+    }
+    return false;
+}
+
+void MainWindow::on_startScanButton_clicked()
+{    
+    if(!validateInputPaths()) return;
+
     ui->statusLabel->setText("RUNNING");
+    signaturesPath = ui->pathSigFileEdit->text();
+    directoryPath = ui->pathDirEdit->text();
 
     DIR     *pDir;
     FILE    *pFile;

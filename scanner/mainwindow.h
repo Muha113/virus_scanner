@@ -36,5 +36,6 @@ private:
     QString signaturesPath;
     Scanner scan;
     int filesToScan;
+    bool validateInputPaths();
 };
 #endif // MAINWINDOW_H
