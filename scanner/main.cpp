@@ -2,8 +2,6 @@
 
 #include <QApplication>
 
-//Starts application
-//Add custom cursor
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);

@@ -140,6 +140,7 @@ void MainWindow::on_startScanButton_clicked()
 {    
     if(!validateInputPaths()) return;
 
+    ui->statusLabel->setStyleSheet("QLabel { color : blue; }");
     ui->statusLabel->setText("RUNNING");
     signaturesPath = ui->pathSigFileEdit->text();
     directoryPath = ui->pathDirEdit->text();

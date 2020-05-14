@@ -241,15 +241,10 @@ int Scanner::scanBuffer (unsigned long long ullVirusTableIndex, char *pcBufferTo
         if (ulIndexJ > 0)
         {
             iASCIIValue = 0;
-            memcpy (&iASCIIValue,
-                    &pcBufferToBeScanned[ulIterator + ulIndexJ - 1], 1);
-            ulIndexK =
-                    pVirusSignatureTable[ullVirusTableIndex]->
-                            iDeltaOne[iASCIIValue];
+            memcpy (&iASCIIValue, &pcBufferToBeScanned[ulIterator + ulIndexJ - 1], 1);
+            ulIndexK = pVirusSignatureTable[ullVirusTableIndex]->iDeltaOne[iASCIIValue];
 
-            if (ulIndexK < ulIndexJ &&
-                (ulIndexM =
-                         ulIndexJ - ulIndexK - 1) >
+            if (ulIndexK < ulIndexJ && (ulIndexM = ulIndexJ - ulIndexK - 1) >
                 pVirusSignatureTable[ullVirusTableIndex]->iDeltaTwo[ulIndexJ])
             {
                 ulIterator = ulIterator + ulIndexM;
